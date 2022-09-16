@@ -9,8 +9,8 @@ contract STMX is Initializable, OwnableUpgradeable, ERC20Upgradeable {
     error InputLengthsDoNotMatch();
 
     /**
-     * @dev initialize function is used instead of constructors because
-     *      no constructors can be used in upgradable contracts
+     * @notice initialize function is used instead of constructors because
+     *         no constructors can be used in upgradable contracts
      * @param name_ name of the token
      * @param symbol_ symbol of the token
      * @param initialSupply_ amount of tokens to be minted and transfered to {owner}
@@ -28,9 +28,9 @@ contract STMX is Initializable, OwnableUpgradeable, ERC20Upgradeable {
     }
 
     /**
-     * @dev Transfers tokens in batch
-     *      Arrays with a very large number of elements could cause this function
-     *      to revert due to exceeding the block size during execution.
+     * @notice Transfers tokens in batch
+     *         Arrays with a very large number of elements could cause this function
+     *         to revert due to exceeding the block size during execution.
      * @param recipients an array of recipient addresses
      * @param values an array of specified amount of tokens to be transferred
      * @return success status of the batch transferring

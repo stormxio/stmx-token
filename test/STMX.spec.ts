@@ -1,9 +1,8 @@
 import { ethers, upgrades } from 'hardhat'
 
 import { expect, getSigners, INITIAL_SUPPLY, NAME, SYMBOL } from './shared'
-import { Signers } from './types'
-
-import { STMX } from '../typechain-types'
+import type { Signers } from './types'
+import type { STMX } from '../typechain-types'
 
 describe('STMX', async () => {
   let signers: Signers
@@ -41,6 +40,10 @@ describe('STMX', async () => {
     it('has correct total supply', async () => {
       expect(await token.totalSupply()).to.equal(INITIAL_SUPPLY)
     })
+
+    it('has correct owner assigned', async () => {
+      expect(await token.owner()).to.eq(signers.owner.address)
+    })
   })
 
   describe('Transfers', () => {
@@ -67,6 +70,16 @@ describe('STMX', async () => {
       expect(await token.balanceOf(signers.user2.address)).to.equal(250)
     })
 
+    it('uses transfers successfully', async () => {
+      const recipients = [signers.user1.address, signers.user2.address, signers.owner.address]
+      const values = [100, 100, 100]
+
+      await token.connect(signers.user1.signer).transfers(recipients, values)
+      expect(await token.balanceOf(signers.user1.address)).to.equal(800)
+      expect(await token.balanceOf(signers.user2.address)).to.equal(100)
+      expect(await token.balanceOf(signers.owner.address)).to.equal(INITIAL_SUPPLY - 1000 + 100)
+    })
+
     it('reverts if input lengths do not match in transfers', async () => {
       const recipients = [signers.user1.address, signers.user2.address]
       const values = [100]
@@ -81,16 +94,6 @@ describe('STMX', async () => {
 
       await expect(token.connect(signers.user1.signer).transfers(recipients, values))
         .to.be.revertedWith('ERC20: transfer amount exceeds balance')
-    })
-
-    it('uses transfers successfully', async () => {
-      const recipients = [signers.user1.address, signers.user2.address, signers.owner.address]
-      const values = [100, 100, 100]
-
-      await token.connect(signers.user1.signer).transfers(recipients, values)
-      expect(await token.balanceOf(signers.user1.address)).to.equal(800)
-      expect(await token.balanceOf(signers.user2.address)).to.equal(100)
-      expect(await token.balanceOf(signers.owner.address)).to.equal(INITIAL_SUPPLY - 1000 + 100)
     })
   })
 

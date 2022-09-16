@@ -1,4 +1,5 @@
 import { expect } from 'chai'
+import type { BigNumber } from 'ethers'
 import { ethers } from 'hardhat'
 
 import { Signer, Signers } from './types'
@@ -40,3 +41,5 @@ export const increaseEvmTime = async (seconds: number): Promise<void> => {
   await ethers.provider.send('evm_increaseTime', [seconds])
   await ethers.provider.send('evm_mine', [])
 }
+
+export const ONE_ETHER: BigNumber = ethers.utils.parseEther('1')
