@@ -19,7 +19,7 @@ jobs:
         node-version: '16.x'
 
     - name: Install dependencies
-      run: yarn
+      run: npm ci
 
     - name: Coverage
-      run: yarn coverage
+      run: npx hardhat coverage

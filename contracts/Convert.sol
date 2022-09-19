@@ -5,7 +5,10 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
 contract Convert {
+    // the old non-upgradable token used for the conversion
     IERC20 public oldToken;
+
+    // the new upgradable token used for the conversion
     IERC20Upgradeable public newToken;
 
     error NotEnoughOldTokenBalance();
