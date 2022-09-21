@@ -38,7 +38,7 @@ describe('Convert', async () => {
   })
 
   describe('Convert', () => {
-    it('converts the tokens and emits Converted events', async () => {
+    it('converts the tokens and emits "Converted" events', async () => {
       // check balances before the conversion
       expect(await oldToken.balanceOf(signers.user1.address)).to.equal(1000)
       expect(await newToken.balanceOf(signers.user1.address)).to.equal(0)
@@ -55,6 +55,13 @@ describe('Convert', async () => {
       expect(await newToken.balanceOf(signers.user1.address)).to.equal(250)
     })
 
+    it('reverts in case of closed contract', async () => {
+      await convert.connect(signers.owner.signer).close()
+      await oldToken.connect(signers.user1.signer).approve(convert.address, 200)
+      await expect(convert.connect(signers.user1.signer).convert(200))
+        .to.be.revertedWithCustomError(convert, 'AlreadyClosed')
+    })
+
     it('reverts in case of not enought old token balance', async () => {
       await oldToken.connect(signers.user1.signer).approve(convert.address, 2000)
       await expect(convert.connect(signers.user1.signer).convert(2000))
@@ -62,9 +69,51 @@ describe('Convert', async () => {
     })
 
     it('reverts in case of failed transfer from the old token', async () => {
-      await oldToken.connect(signers.user1.signer).approve(convert.address, 1)
-      await expect(convert.connect(signers.user1.signer).convert(1))
+      await oldToken.connect(signers.user1.signer).approve(convert.address, 0)
+      await expect(convert.connect(signers.user1.signer).convert(0))
         .to.be.revertedWithCustomError(convert, 'OldTokenTransferFailed')
+    })
+
+    it('reverts in case of not enough reserves', async () => {
+      await oldToken.connect(signers.owner.signer).transfer(signers.user1.address, 1000)
+      // convert contract should have only 1000 new tokens
+      await oldToken.connect(signers.user1.signer).approve(convert.address, 2000)
+      await expect(convert.connect(signers.user1.signer).convert(2000))
+        .to.be.revertedWithCustomError(convert, 'NotEnoughReserves')
+    })
+  })
+
+  describe('Close', () => {
+    it('allows the owner to close the contract and emits "Closed" event', async () => {
+      expect(await convert.closed()).to.equal(false)
+      const txReceiptUnresolved = await convert.connect(signers.owner.signer).close()
+      await expect(txReceiptUnresolved).to.emit(convert, 'Closed').withArgs()
+      expect(await convert.closed()).to.equal(true)
+    })
+
+    it('prevents non-owner from setting the cooldown', async () => {
+      await expect(convert.connect(signers.user1.signer).close())
+        .to.be.revertedWith('Ownable: caller is not the owner')
+    })
+  })
+
+  describe('Withdraw', () => {
+    it('allows the owner to withdraw remaining tokens when contract is closed', async () => {
+      expect(await newToken.balanceOf(signers.owner.address)).to.equal(INITIAL_SUPPLY - 1000)
+      expect(await newToken.balanceOf(convert.address)).to.equal(1000)
+      await convert.connect(signers.owner.signer).close()
+      await convert.connect(signers.owner.signer).withdraw()
+      expect(await newToken.balanceOf(signers.owner.address)).to.equal(INITIAL_SUPPLY)
+    })
+
+    it('prevents the owner from withdrawing the tokens when contract is not closed', async () => {
+      await expect(convert.connect(signers.owner.signer).withdraw())
+        .to.be.revertedWithCustomError(convert, 'NotClosed')
+    })
+
+    it('prevents non-owner from withdrawing the tokens', async () => {
+      await expect(convert.connect(signers.user1.signer).withdraw())
+        .to.be.revertedWith('Ownable: caller is not the owner')
     })
   })
 })

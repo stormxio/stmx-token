@@ -104,6 +104,25 @@ describe('Staking', async () => {
       expect(await token.balanceOf(staking.address)).to.equal(100)
     })
 
+    it('emits "Staked" event when staking', async () => {
+      // staking
+      await token.connect(signers.user1.signer).approve(staking.address, 500)
+      const txReceiptUnresolved = await staking.connect(signers.user1.signer).stake(500)
+      await expect(txReceiptUnresolved).to.emit(staking, 'Staked').withArgs(signers.user1.address, 500)
+      expect(await staking.staked(signers.user1.address)).to.equal(500)
+    })
+
+    it('emits "Unstaked" event when unstaking', async () => {
+      // staking
+      await token.connect(signers.user1.signer).approve(staking.address, 500)
+      await staking.connect(signers.user1.signer).stake(500)
+      expect(await staking.staked(signers.user1.address)).to.equal(500)
+
+      // unstaking
+      const txReceiptUnresolved = await staking.connect(signers.user1.signer).unstake(500)
+      await expect(txReceiptUnresolved).to.emit(staking, 'Unstaked').withArgs(signers.user1.address, 500)
+    })
+
     it('prevents from staking more tokens than the balance', async () => {
       await expect(staking.connect(signers.user1.signer).stake(1100))
         .to.be.revertedWithCustomError(staking, 'NotEnoughBalance')
@@ -132,7 +151,7 @@ describe('Staking', async () => {
   })
 
   describe('Cooldown', () => {
-    it('allows the owner to set the cooldown and emits an event', async () => {
+    it('allows the owner to set the cooldown and emits "CooldownChanged" event', async () => {
       expect(await staking.cooldown()).to.equal(toDays(14))
       const txReceiptUnresolved = await staking.connect(signers.owner.signer).setCooldown(toDays(7))
       await expect(txReceiptUnresolved).to.emit(staking, 'CooldownChanged').withArgs(toDays(7))
@@ -146,7 +165,23 @@ describe('Staking', async () => {
   })
 
   describe('Penalty', () => {
-    it('allows the owner to set the penalty and emits an event', async () => {
+    it('allows to calculate the penalty before actually unstaking', async () => {
+      // stake
+      await token.connect(signers.user1.signer).approve(staking.address, 500)
+      await staking.connect(signers.user1.signer).stake(500)
+      expect(await staking.connect(signers.user1.address).calculatePenalty(500)).to.equal(50)
+
+      // wait some time and change penalty amount
+      increaseEvmTime(toDays(8).toNumber())
+      await expect(staking.connect(signers.owner.signer).setPenalty(2000))
+      expect(await staking.connect(signers.user1.address).calculatePenalty(500)).to.equal(100)
+
+      // pass the cooldown period
+      increaseEvmTime(toDays(8).toNumber())
+      expect(await staking.connect(signers.user1.address).calculatePenalty(500)).to.equal(0)
+    })
+
+    it('allows the owner to set the penalty and emits "PenaltyChanged" event', async () => {
       expect(await staking.penalty()).to.equal(1000)
       const txReceiptUnresolved = await staking.connect(signers.owner.signer).setPenalty(100)
       await expect(txReceiptUnresolved).to.emit(staking, 'PenaltyChanged').withArgs(100)
@@ -157,10 +192,15 @@ describe('Staking', async () => {
       await expect(staking.connect(signers.user1.signer).setPenalty(100))
         .to.be.revertedWith('Ownable: caller is not the owner')
     })
+
+    it('prevents the owner from overflowing the penalty', async () => {
+      await expect(staking.connect(signers.owner.signer).setPenalty(10001))
+        .to.be.revertedWithCustomError(staking, 'PenaltyOverflow')
+    })
   })
 
   describe('Treasury', () => {
-    it('allows the owner to set the treasury and emits an event', async () => {
+    it('allows the owner to set the treasury and emits "TreasuryChanged" event', async () => {
       expect(await staking.treasury()).to.equal(signers.user2.address)
       const txReceiptUnresolved = await staking.connect(signers.owner.signer).setTreasury(signers.user3.address)
       await expect(txReceiptUnresolved).to.emit(staking, 'TreasuryChanged').withArgs(signers.user3.address)

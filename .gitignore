@@ -1,10 +1,12 @@
-node_modules
+@openzeppelin
 .env
 .DS_Store
 .openzeppelin/unknown-*.json
 .vscode
 coverage
 coverage.json
+crytic-export
+node_modules
 typechain
 typechain-types
 

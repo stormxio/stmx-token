@@ -9,8 +9,8 @@ contract TestERC20 is ERC20 {
   }
 
   function transferFrom(address sender, address recipient, uint256 amount) public override returns (bool) {
-    // simulate failed transfer for amount == 1
-    if (amount == 1) {
+    // simulate failed transfer for amount == 0
+    if (amount == 0) {
       return false;
     }
     // use regular transferFrom for all the other amounts

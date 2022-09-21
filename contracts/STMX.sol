@@ -14,7 +14,7 @@ contract STMX is Initializable, OwnableUpgradeable, ERC20Upgradeable {
      * @param name_ name of the token
      * @param symbol_ symbol of the token
      * @param initialSupply_ amount of tokens to be minted and transfered to {owner}
-     * @param owner_ contract owner, must be non-zero
+     * @param owner_ contract owner
      */
     function initialize(
         string memory name_,
@@ -28,7 +28,7 @@ contract STMX is Initializable, OwnableUpgradeable, ERC20Upgradeable {
     }
 
     /**
-     * @notice Transfers tokens in batch
+     * @notice Transfers tokens in batch.
      *         Arrays with a very large number of elements could cause this function
      *         to revert due to exceeding the block size during execution.
      * @param recipients an array of recipient addresses
@@ -47,6 +47,11 @@ contract STMX is Initializable, OwnableUpgradeable, ERC20Upgradeable {
         }
         return true;
     }
-    // https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+
+    /**
+     * @dev This empty reserved space is put in place to allow future versions to add new
+     *      variables without shifting down storage in the inheritance chain.
+     *      See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[50] private __gap;
 }

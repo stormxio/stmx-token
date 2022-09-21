@@ -1,19 +1,27 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.16;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
-contract Convert {
+contract Convert is Ownable {
     // the old non-upgradable token used for the conversion
-    IERC20 public oldToken;
+    IERC20 public immutable oldToken;
 
     // the new upgradable token used for the conversion
-    IERC20Upgradeable public newToken;
+    IERC20Upgradeable public immutable newToken;
 
+    // whether the contract is closed (converting is not possible anymore when the contract is closed)
+    bool public closed = false;
+
+    error AlreadyClosed();
+    error NotClosed();
     error NotEnoughOldTokenBalance();
+    error NotEnoughReserves();
     error OldTokenTransferFailed();
 
+    event Closed();
     event Converted(address indexed account, uint256 amount);
 
     /**
@@ -26,19 +34,47 @@ contract Convert {
     }
 
     /**
-     * @notice Converts the old tokens to the new ones by transfering the old tokens
-     *         to the contract and then the contract will send the new tokens back.
+     * @notice Converts the old tokens to the new ones by transferring the old tokens
+     *         to the contract, and then the contract will send the new tokens back.
      * @param amount amount of tokens to convert
      */
-    function convert(uint256 amount) external returns(bool) {
+    function convert(uint256 amount) external {
+        if (closed) {
+            revert AlreadyClosed();
+        }
         if (oldToken.balanceOf(msg.sender) < amount) {
             revert NotEnoughOldTokenBalance();
+        }
+        if (newToken.balanceOf(address(this)) < amount) {
+            revert NotEnoughReserves();
         }
         if (!oldToken.transferFrom(msg.sender, address(this), amount)) {
             revert OldTokenTransferFailed();
         }
-        newToken.transfer(msg.sender, amount);
+        require(newToken.transfer(msg.sender, amount), "transfer failed");
         emit Converted(msg.sender, amount);
-        return true;
+    }
+
+    /**
+     * @notice Closes the contract. The closed contract does not accept conversions anymore and allows a full
+     *         withdrawal by the owner. Only the owner is allowed to close the contract.
+     */
+    function close() external onlyOwner {
+        if (!closed) {
+            closed = true;
+            emit Closed();
+        }
+    }
+
+    /**
+     * @notice Transfers the remaining tokens balance to the owner when the contract is closed.
+     *         Only the owner is allowed to withdraw.
+     */
+    function withdraw() external onlyOwner {
+        if (!closed) {
+            revert NotClosed();
+        }
+        uint256 reserves = newToken.balanceOf(address(this));
+        newToken.transfer(owner(), reserves);
     }
 }
