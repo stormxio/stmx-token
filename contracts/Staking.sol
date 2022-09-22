@@ -11,10 +11,13 @@ contract Staking is Ownable {
     // amounts staked, address to value staked mapping
     mapping(address => uint256) public staked;
 
-    // timestamps at which the wallets staked for the last time
+    // timestamps timers until which the penalty is applied
     mapping(address => uint256) public timers;
 
-    // cooldown period before which the penalty is applied
+    // snapshotted penalties, address to penalty mapping
+    mapping(address => uint16) public penalties;
+
+    // cooldown period
     uint256 public cooldown = 14 days;
 
     // penalty for unstaking, divided by 100 to get the total percentages
@@ -55,7 +58,8 @@ contract Staking is Ownable {
             revert NotEnoughBalance();
         }
         staked[msg.sender] += amount;
-        timers[msg.sender] = block.timestamp;
+        timers[msg.sender] = block.timestamp + cooldown;
+        penalties[msg.sender] = penalty;
         require(token.transferFrom(msg.sender, address(this), amount), "transfer failed");
         emit Staked(msg.sender, amount);
     }
@@ -120,8 +124,8 @@ contract Staking is Ownable {
      * @return amount amount of penalty
      */
     function calculatePenalty(uint256 amount) public view returns (uint256) {
-        if (timers[msg.sender] > block.timestamp - cooldown) {
-            return (amount * penalty / 100) / 100;
+        if (timers[msg.sender] > block.timestamp) {
+            return (amount * penalties[msg.sender] / 100) / 100;
         } else {
             return 0;
         }

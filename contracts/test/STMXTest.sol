@@ -16,4 +16,6 @@ contract STMXTest {
         token.initialize('StormX', 'STMX', 100 ether, deployer);
         return true;
     }
+
+    // TODO: add more properties
 }

@@ -20,4 +20,6 @@ contract ConvertTest {
     function echidna_shouldHaveFixedTokenSupplies() public view returns (bool) {
         return oldToken.totalSupply() + newToken.totalSupply() == 200 ether;
     }
+
+    // TODO: add more properties
 }

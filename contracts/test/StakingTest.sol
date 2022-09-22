@@ -18,4 +18,6 @@ contract StakingTest {
     function echidna_cannotChangeToken() public view returns (bool) {
         return staking.token() == token;
     }
+
+    // TODO: add more properties
 }

@@ -174,7 +174,8 @@ describe('Staking', async () => {
       // wait some time and change penalty amount
       increaseEvmTime(toDays(8).toNumber())
       await expect(staking.connect(signers.owner.signer).setPenalty(2000))
-      expect(await staking.connect(signers.user1.address).calculatePenalty(500)).to.equal(100)
+      // penalty should remain the same for that address since it was snapshotted
+      expect(await staking.connect(signers.user1.address).calculatePenalty(500)).to.equal(50)
 
       // pass the cooldown period
       increaseEvmTime(toDays(8).toNumber())
