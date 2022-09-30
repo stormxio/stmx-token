@@ -2,6 +2,7 @@ import { ethers } from 'hardhat'
 
 import verifyEnvVars from './helpers/env-vars'
 import getEtherscanUri from './helpers/etherscan'
+import type { Staking } from '../typechain-types'
 
 async function main() {
   const values = verifyEnvVars(['NEW_TOKEN', 'TREASURY'], 'STAKING')
@@ -13,8 +14,8 @@ async function main() {
     `and owner ${owner.address}...`
   )
 
-  const Staking = await ethers.getContractFactory('Staking', owner)
-  const staking = await Staking.deploy(values.NEW_TOKEN, values.TREASURY)
+  const StakingContract = await ethers.getContractFactory('Staking', owner)
+  const staking: Staking = await StakingContract.deploy(values.NEW_TOKEN, values.TREASURY)
 
   console.info(`Check tx here: ${getEtherscanUri('tx', staking.deployTransaction.hash)}`)
 

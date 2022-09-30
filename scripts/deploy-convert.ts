@@ -2,6 +2,7 @@ import { ethers } from 'hardhat'
 
 import verifyEnvVars from './helpers/env-vars'
 import getEtherscanUri from './helpers/etherscan'
+import type { Convert } from '../typechain-types'
 
 async function main() {
   const values = verifyEnvVars(['OLD_TOKEN', 'NEW_TOKEN'], 'CONVERT')
@@ -13,8 +14,8 @@ async function main() {
     `and owner ${owner.address}...`
   )
 
-  const Convert = await ethers.getContractFactory('Convert', owner)
-  const convert = await Convert.deploy(values.OLD_TOKEN, values.NEW_TOKEN)
+  const ConvertContract = await ethers.getContractFactory('Convert', owner)
+  const convert: Convert = await ConvertContract.deploy(values.OLD_TOKEN, values.NEW_TOKEN)
 
   console.info(`Check tx here: ${getEtherscanUri('tx', convert.deployTransaction.hash)}`)
 
