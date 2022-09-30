@@ -1,7 +1,6 @@
 # stmx-token
 
 [![Coverage](https://github.com/stormxio/stmx-token/actions/workflows/Coverage.yml/badge.svg)](https://github.com/stormxio/stmx-token/actions/workflows/Coverage.yml)
-[![Echidna](https://github.com/stormxio/stmx-token/actions/workflows/Echidna.yml/badge.svg)](https://github.com/stormxio/stmx-token/actions/workflows/Echidna.yml)
 
 StormX is changing their staking and token contracts to future-proof itself via upgradeability and increase sustainability of the token by adding fees. The new staking contract will add a 10% withdrawal penalty if users remove their tokens without waiting for the 14-day cooldown period. The penalty will be removed from the principal amount that was staked. For example, if a user stakes 100 STMX and unstakes the next day then they will lose 10 STMX tokens. Those tokens will be disbursed to StormX.
 
@@ -73,19 +72,6 @@ npx hardhat coverage
 docker run -it -v `pwd`:/src trailofbits/eth-security-toolbox
 solc-select install 0.8.16 && solc-select use 0.8.16 && cd /src
 slither .
-```
-
-### Run Echidna via Docker
-
-Tests are running with an [external testing approach](https://github.com/crytic/building-secure-contracts/blob/master/program-analysis/echidna/common-testing-approaches.md#external-testing) since the STMX contract is upgradeable and requires initialization.
-
-```
-docker run -it -v `pwd`:/src trailofbits/eth-security-toolbox
-solc-select install 0.8.16 && solc-select use 0.8.16 && cd /src
-ln -s node_modules/@openzeppelin # quick workaround for echidna import issue
-echidna-test . --contract ConvertTest
-echidna-test . --contract StakingTest
-echidna-test . --contract STMXTest
 ```
 
 ## Deployment
