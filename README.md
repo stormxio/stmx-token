@@ -17,7 +17,7 @@ This project consists of three contracts. One for a new STMX ERC20 token. The se
 - Supports the standard ERC20 interface
 - The name of the token is "StormX"
 - The symbol of the token is "STMX"
-- The total supply is [TBA]
+- The total supply is 12.500.000.000
 - The decimals remain according to the standard
 - The token is ownable
 - StormX owns the token
