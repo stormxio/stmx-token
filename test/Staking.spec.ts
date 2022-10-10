@@ -1,6 +1,6 @@
 import { ethers, upgrades } from 'hardhat'
 
-import { expect, getSigners, increaseEvmTime, toDays, INITIAL_SUPPLY, NAME, SYMBOL } from './shared'
+import { expect, getSigners, increaseEvmTime, toDays, INITIAL_SUPPLY, NAME, SYMBOL, ZERO_ADDRESS } from './shared'
 import type { Signers } from './types'
 import type { ERC20Upgradeable, Staking, STMX } from '../typechain-types'
 
@@ -27,6 +27,20 @@ describe('Staking', async () => {
 
     // transfer 1000 tokens to {user1}
     await token.connect(signers.owner.signer).transfer(signers.user1.address, 1000)
+  })
+
+  describe('Deploying', () => {
+    it('reverts if deployment is using zero-address token', async () => {
+      const StakingContract = await ethers.getContractFactory('Staking')
+      await expect(StakingContract.deploy(ZERO_ADDRESS, signers.user2.address))
+        .to.be.revertedWithCustomError(staking, 'ZeroAddress')
+    })
+
+    it('reverts if deployment is using zero-address treasury', async () => {
+      const StakingContract = await ethers.getContractFactory('Staking')
+      await expect(StakingContract.deploy(token.address, ZERO_ADDRESS))
+        .to.be.revertedWithCustomError(staking, 'ZeroAddress')
+    })
   })
 
   describe('Staking', () => {
@@ -211,6 +225,11 @@ describe('Staking', async () => {
     it('prevents non-owner from setting the treasury', async () => {
       await expect(staking.connect(signers.user1.signer).setTreasury(signers.user3.address))
         .to.be.revertedWith('Ownable: caller is not the owner')
+    })
+
+    it('reverts when setting zero-address treasury', async () => {
+      await expect(staking.connect(signers.owner.signer).setTreasury(ZERO_ADDRESS))
+        .to.be.revertedWithCustomError(staking, 'ZeroAddress')
     })
   })
 })

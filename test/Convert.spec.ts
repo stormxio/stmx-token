@@ -1,6 +1,6 @@
 import { ethers, upgrades } from 'hardhat'
 
-import { expect, getSigners, INITIAL_SUPPLY, NAME, SYMBOL } from './shared'
+import { expect, getSigners, INITIAL_SUPPLY, NAME, SYMBOL, ZERO_ADDRESS } from './shared'
 import type { Signers } from './types'
 import type { Convert, ERC20, ERC20Upgradeable, STMX } from '../typechain-types'
 
@@ -35,6 +35,21 @@ describe('Convert', async () => {
 
     // transfer 1000 new tokens to {convert}
     await newToken.connect(signers.owner.signer).transfer(convert.address, 1000)
+  })
+
+
+  describe('Deploying', () => {
+    it('reverts if deployment is using zero-address oldToken', async () => {
+      const ConvertContract = await ethers.getContractFactory('Convert')
+      await expect(ConvertContract.deploy(ZERO_ADDRESS, signers.user2.address))
+        .to.be.revertedWithCustomError(convert, 'ZeroAddress')
+    })
+
+    it('reverts if deployment is using zero-address newToken', async () => {
+      const ConvertContract = await ethers.getContractFactory('Convert')
+      await expect(ConvertContract.deploy(newToken.address, ZERO_ADDRESS))
+        .to.be.revertedWithCustomError(convert, 'ZeroAddress')
+    })
   })
 
   describe('Convert', () => {

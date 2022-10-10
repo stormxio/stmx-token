@@ -30,6 +30,7 @@ contract Staking is Ownable {
     error NotEnoughStakedBalance();
     error PenaltyOverflow();
     error ZeroAmount();
+    error ZeroAddress();
 
     event Staked(address indexed account, uint256 amount);
     event Unstaked(address indexed account, uint256 amount);
@@ -42,6 +43,9 @@ contract Staking is Ownable {
      * @param treasury_ address for the treasury wallet
      */
     constructor(IERC20Upgradeable token_, address treasury_) {
+        if (address(token_) == address(0) || address(treasury_) == address(0)) {
+            revert ZeroAddress();
+        }
         token = token_;
         treasury = treasury_;
     }
@@ -113,6 +117,9 @@ contract Staking is Ownable {
      * @param newTreasury new treasury address
      */
     function setTreasury(address newTreasury) external onlyOwner {
+        if (newTreasury == address(0)) {
+            revert ZeroAddress();
+        }
         treasury = newTreasury;
         emit TreasuryChanged(newTreasury);
     }

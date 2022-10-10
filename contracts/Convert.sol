@@ -20,6 +20,7 @@ contract Convert is Ownable {
     error NotEnoughOldTokenBalance();
     error NotEnoughReserves();
     error OldTokenTransferFailed();
+    error ZeroAddress();
 
     event Closed();
     event Converted(address indexed account, uint256 amount);
@@ -29,6 +30,9 @@ contract Convert is Ownable {
      * @param newToken_ new token address
      */
     constructor(IERC20 oldToken_, IERC20Upgradeable newToken_) {
+        if (address(oldToken_) == address(0) || address(newToken_) == address(0)) {
+            revert ZeroAddress();
+        }
         oldToken = oldToken_;
         newToken = newToken_;
     }
