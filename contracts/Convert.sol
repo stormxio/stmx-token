@@ -3,14 +3,13 @@ pragma solidity 0.8.16;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
 contract Convert is Ownable {
     // the old non-upgradable token used for the conversion
     IERC20 public immutable oldToken;
 
     // the new upgradable token used for the conversion
-    IERC20Upgradeable public immutable newToken;
+    IERC20 public immutable newToken;
 
     // whether the contract is closed (converting is not possible anymore when the contract is closed)
     bool public closed = false;
@@ -29,7 +28,7 @@ contract Convert is Ownable {
      * @param oldToken_ old token address
      * @param newToken_ new token address
      */
-    constructor(IERC20 oldToken_, IERC20Upgradeable newToken_) {
+    constructor(IERC20 oldToken_, IERC20 newToken_) {
         if (address(oldToken_) == address(0) || address(newToken_) == address(0)) {
             revert ZeroAddress();
         }
