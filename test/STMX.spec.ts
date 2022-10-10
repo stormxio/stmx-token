@@ -2,7 +2,7 @@ import { ethers, upgrades } from 'hardhat'
 
 import { expect, getSigners, INITIAL_SUPPLY, NAME, SYMBOL } from './shared'
 import type { Signers } from './types'
-import type { STMX } from '../typechain-types'
+import type { STMX, STMXv3 } from '../typechain-types'
 
 describe('STMX', async () => {
   let signers: Signers
@@ -98,6 +98,18 @@ describe('STMX', async () => {
   })
 
   describe('Upgradability', () => {
+    it('should correctly upgrade the contract by the owner', async () => {
+      const STMXv3Contract = await ethers.getContractFactory('STMXv3', signers.owner)
+      const tokenV3 = await upgrades.upgradeProxy(token, STMXv3Contract) as STMXv3
+      expect(await tokenV3.returnOne()).to.equal(1)
+    })
+
+    it('prevents non-owner from upgrading the contract', async () => {
+      const STMXv3Contract = await ethers.getContractFactory('STMXv3', signers.user1)
+      await expect(upgrades.upgradeProxy(token, STMXv3Contract))
+        .to.be.revertedWith('Ownable: caller is not the owner')
+    })
+
     it('reverts if initialize() called more than once', async () => {
       // expect to revert another initialization
       await expect(token.initialize(NAME, SYMBOL, INITIAL_SUPPLY, signers.owner.address))
