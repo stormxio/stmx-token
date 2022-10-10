@@ -40,9 +40,9 @@ const config: HardhatUserConfig = {
       gasPrice: 55_000_000_000,
       timeout: 0,
     },
-    ropsten: {
-      url: `https://ropsten.infura.io/v3/${process.env.ROPSTEN_INFURA_API_KEY}`,
-      accounts: getAccounts('ROPSTEN'),
+    goerli: {
+      url: `https://goerli.infura.io/v3/${process.env.GOERLI_INFURA_API_KEY}`,
+      accounts: getAccounts('GOERLI'),
       gasPrice: 40_000_000_000,
       timeout: 0,
     },
