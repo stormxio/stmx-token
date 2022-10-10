@@ -176,6 +176,12 @@ describe('Staking', async () => {
       await expect(staking.connect(signers.user1.signer).setCooldown(100))
         .to.be.revertedWith('Ownable: caller is not the owner')
     })
+
+    it('prevents from setting cooldown period over the maximum 365 days', async () => {
+      const FOUR_HUNDRED_DAYS_IN_SECONDS = 34_560_000
+      await expect(staking.connect(signers.owner.signer).setCooldown(FOUR_HUNDRED_DAYS_IN_SECONDS))
+        .to.be.revertedWithCustomError(staking, 'CooldownOverflow')
+    })
   })
 
   describe('Penalty', () => {

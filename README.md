@@ -127,7 +127,7 @@ function unlock(uint256 amount) public returns (bool)
 
 #### Cooldown period and Penalty
 
-There is a penalty for unstaking the tokens before the cooldown period. The penalty is 10% by default and is configurable by the owner of the contract. The cooldown period is 14 days by default and is also configurable by the owner. Any applied penalty is transferred to the treasury address configured at the time of the deployment and can be changed by the owner.
+There is a penalty for unstaking the tokens before the cooldown period. The penalty is 10% by default and is configurable by the owner of the contract. The cooldown period is 14 days by default and is also configurable (with an upper limit of 365 days) by the owner. Any applied penalty is transferred to the treasury address configured at the time of the deployment and can be changed by the owner.
 
 The cooldown period for a wallet starts every time a user stakes the tokens and ends at `now + cooldown`. The cooldown and the penalty are snapshotted at the time of staking. For example, when a user stakes their tokens now and the cooldown period is 14 days, then they will have to wait 14 days, so they don't get a penalty for unstaking their tokens. Any meantime penalty or cooldown changes will not affect the penalty for that wallet anymore.
 

@@ -5,6 +5,9 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
 contract Staking is Ownable {
+    // maximum upper limit of the cooldown period
+    uint256 public constant COOLDOWN_UPPER_LIMIT = 365 days;
+
     // token used for staking
     IERC20Upgradeable public immutable token;
 
@@ -26,6 +29,7 @@ contract Staking is Ownable {
     // wallet to which the tokens go for penalties
     address public treasury;
 
+    error CooldownOverflow();
     error NotEnoughBalance();
     error NotEnoughStakedBalance();
     error PenaltyOverflow();
@@ -92,10 +96,13 @@ contract Staking is Ownable {
     }
 
     /**
-     * @notice Allows the owner to set the cooldown period.
+     * @notice Allows the owner to set the cooldown period (maximum of 365 days).
      * @param newCooldown new cooldown period
      */
     function setCooldown(uint256 newCooldown) external onlyOwner {
+        if (newCooldown > COOLDOWN_UPPER_LIMIT) {
+            revert CooldownOverflow();
+        }
         cooldown = newCooldown;
         emit CooldownChanged(newCooldown);
     }
