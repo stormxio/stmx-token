@@ -131,11 +131,9 @@ function unstake(uint256 amount) external
 
 There is a penalty for unstaking the tokens immediately as opposed to setting a cooldown period and waiting. The penalty is 10% by default and is configurable by the owner of the contract. The cooldown period is 14 days by default and is also configurable (with an upper limit of 365 days) by the owner. Any applied penalty is transferred to the treasury address configured at the time of the deployment and can be changed by the owner.
 
-To unstake the tokens without penalty, the users must first set the cooldown timer with the amount they want to unstake by invoking `setCooldownTimer(amount)` and wait until the timer runs out. The cooldown and the penalty are snapshotted at the time of staking. Every time the user stakes or restakes tokens, the latest penalty percentage will be used. The event `SetCooldownTimer(address account, uint256 amount)` is emitted.
-
 Users have two options when unstaking their tokens. A user can unstake immediately, which incurs a penalty, or they can wait for a cooldown timer to complete and unstake their tokens with no penalty. The penalty is 10% by default and configurable by the contract's owner. The cooldown period is 14 days by default and is also configurable (with an upper limit of 365 days) by the owner. Any applied penalty is transferred to the treasury address configured at the time of the deployment and can be changed by the owner.
 
-To unstake the tokens without penalty, the users must first set the cooldown timer with the amount they want to unstake by invoking `setCooldownTimer(amount)` and wait until the timer runs out. The cooldown and the penalty are snapshotted at the time of staking. Every time the user stakes or restakes tokens, the latest penalty percentage will be used since it is possible these variables have been changed by the owner. The event `SetCooldownTimer(address account, uint256 amount)` is emitted. 
+To unstake the tokens without penalty, the users must first set the cooldown timer with the amount they want to unstake by invoking `setCooldownTimer(amount)` and wait until the timer runs out. The cooldown and the penalty are snapshotted at the time of staking. Every time the user stakes or restakes tokens, the latest penalty percentage will be used since these variables may have been changed by the owner. The event `SetCooldownTimer(address account, uint256 amount)` is emitted. 
 
 ```solidity
 function setCooldownTimer(uint256 amount) public
