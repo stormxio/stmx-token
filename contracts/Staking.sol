@@ -14,8 +14,11 @@ contract Staking is Ownable {
     // amounts staked, address to value staked mapping
     mapping(address => uint256) public staked;
 
-    // timestamps timers until which the penalty is applied
+    // timestamps timers until which the penalty is applied, 0 means it is cleared
     mapping(address => uint256) public timers;
+
+    // amounts set for the cooldown period
+    mapping(address => uint256) public amounts;
 
     // snapshotted penalties, address to penalty mapping
     mapping(address => uint16) public penalties;
@@ -33,6 +36,7 @@ contract Staking is Ownable {
     error NotEnoughBalance();
     error NotEnoughStakedBalance();
     error PenaltyOverflow();
+    error UnstakingDifferentAmount();
     error ZeroAmount();
     error ZeroAddress();
 
@@ -40,6 +44,7 @@ contract Staking is Ownable {
     event Unstaked(address indexed account, uint256 amount);
     event CooldownChanged(uint256 newCooldown);
     event PenaltyChanged(uint16 newPenalty);
+    event SetCooldownTimer(address indexed account, uint256 amount);
     event TreasuryChanged(address newTreasury);
 
     /**
@@ -56,6 +61,7 @@ contract Staking is Ownable {
 
     /**
      * @notice Allows any wallet to stake available tokens.
+     *         The penalty for unstaking is updated to the current global one when a wallet stakes more tokens.
      * @param amount amount of tokens to stake
      */
     function stake(uint256 amount) external {
@@ -66,7 +72,6 @@ contract Staking is Ownable {
             revert NotEnoughBalance();
         }
         staked[msg.sender] += amount;
-        timers[msg.sender] = block.timestamp + cooldown;
         penalties[msg.sender] = penalty;
         require(token.transferFrom(msg.sender, address(this), amount), "transfer failed");
         emit Staked(msg.sender, amount);
@@ -74,7 +79,8 @@ contract Staking is Ownable {
 
     /**
      * @notice Allows any wallet to unstake staked tokens.
-     *         There is a penalty for unstaking before the cooldown period.
+     *         There is a penalty for unstaking the tokens during or without the cooldown period.
+     *         The cooldown period is set via setCooldownTimer(amount) method.
      * @param amount amount of tokens to unstake
      */
     function unstake(uint256 amount) external {
@@ -84,8 +90,12 @@ contract Staking is Ownable {
         if (amount > staked[msg.sender]) {
             revert NotEnoughStakedBalance();
         }
-        staked[msg.sender] -= amount;
+        if (amount != amounts[msg.sender] && amounts[msg.sender] != 0) {
+            revert UnstakingDifferentAmount();
+        }
         uint256 penaltyAmount = calculatePenalty(amount);
+        staked[msg.sender] -= amount;
+        setCooldownTimer(0);
         if (penaltyAmount > 0) {
             require(token.transfer(treasury, penaltyAmount), "penalty transfer failed");
         }
@@ -93,6 +103,20 @@ contract Staking is Ownable {
             require(token.transfer(msg.sender, amount - penaltyAmount), "transfer failed");
         }
         emit Unstaked(msg.sender, amount);
+    }
+
+    /**
+     * @notice Sets the cooldown timer for passed amount.
+     * @param amount amount of set for the cooldown period
+     */
+    function setCooldownTimer(uint256 amount) public {
+        if (amount > staked[msg.sender]) {
+            revert NotEnoughStakedBalance();
+        }
+        timers[msg.sender] = amount == 0 ? 0 : block.timestamp + cooldown;
+        amounts[msg.sender] = amount;
+        penalties[msg.sender] = amount == 0 ? 0 : penalty;
+        emit SetCooldownTimer(msg.sender, amount);
     }
 
     /**
@@ -138,7 +162,9 @@ contract Staking is Ownable {
      * @return amount amount of penalty
      */
     function calculatePenalty(uint256 amount) public view returns (uint256) {
-        if (timers[msg.sender] > block.timestamp) {
+        if (amounts[msg.sender] == 0) {
+            return (amount * penalty / 100) / 100;
+        } else if (timers[msg.sender] > block.timestamp) {
             return (amount * penalties[msg.sender] / 100) / 100;
         } else {
             return 0;
