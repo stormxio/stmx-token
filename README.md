@@ -2,6 +2,12 @@
 
 [![Coverage](https://github.com/stormxio/stmx-token/actions/workflows/Coverage.yml/badge.svg)](https://github.com/stormxio/stmx-token/actions/workflows/Coverage.yml)
 
+StormX (STMX) token is deployed on [mainnet](https://etherscan.io/token/0xa62cc35625b0c8dc1faea39d33625bb4c15bd71c): `0xa62cc35625b0c8dc1faea39d33625bb4c15bd71c`
+
+Convert contract is deployed on [mainnet](https://etherscan.io/address/0x2c993b24978c49ac284e9cdab4afa926ffe13860): `0x2c993b24978c49ac284e9cdab4afa926ffe13860`
+
+Staking contract is deployed on [mainnet](https://etherscan.io/address/0x8650714D080905FC457C73e6Af8A492Be86A600c): `0x8650714D080905FC457C73e6Af8A492Be86A600c`
+
 StormX is changing their staking and token contracts to future-proof itself via upgradeability and increase sustainability of the token by adding fees. The new staking contract will add a 10% withdrawal penalty if users remove their tokens without waiting for the 14-day cooldown period. The penalty will be removed from the total principal amount that was staked. For example, if a user stakes 100 STMX and unstakes the next day then they will lose 10 STMX tokens. Those tokens will be disbursed to a StormX treasury wallet.
 
 The new StormX token will be an upgradeable OpenZeplin based ERC20 contract. This should allow StormX to make changes to the token over time as the ecosystem changes and users need additional features. The new token will have the same ticker as the previous token STMX. There will be no brand changes.
@@ -205,7 +211,7 @@ Since the STMX token is an upgradable contract and `initialize` function needs t
 ```ini
 GOERLI_TOKEN_NAME=StormX
 GOERLI_TOKEN_SYMBOL=STMX
-GOERLI_TOKEN_INITIAL_SUPPLY=10000000000
+GOERLI_TOKEN_INITIAL_SUPPLY=12500000000
 ```
 
 ```
