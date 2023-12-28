@@ -18,16 +18,10 @@ async function main() {
   const STMXContract = await ethers.getContractFactory('STMX', owner)
 
   // 18 decimal places, convert to full units
-  const initialSupply = BigNumber.from(values.INITIAL_SUPPLY).mul(BigNumber.from(10).pow(18))
-  const args = [values.NAME, values.SYMBOL, initialSupply, owner.address]
-  const token = await upgrades.deployProxy(STMXContract, args) as STMX
-
-  console.info(`Check tx here: ${getEtherscanUri('tx', token.deployTransaction.hash)}`)
-
-  await token.deployed()
-
-  console.info(`"${values.NAME}" [${values.SYMBOL}] deployed to: ${token.address}`)
-  console.info(`Verify here: ${getEtherscanUri('address', token.address)}`)
+  // const initialSupply = BigNumber.from(values.INITIAL_SUPPLY).mul(BigNumber.from(10).pow(18))
+  const args = [values.NAME, values.SYMBOL, values.INITIAL_SUPPLY, owner.address]
+  const token = await upgrades.deployProxy(STMXContract, args) as unknown as STMX
+  console.info(`Verify here: ${getEtherscanUri('address', token.target)}`)
 }
 
 main()

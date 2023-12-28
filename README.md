@@ -197,7 +197,7 @@ slither .
 
 ## Deployment
 
-Pass environment variables via `.env` file or shell. Use `GOERLI_` prefix for Goerli network values as in the below examples or `MAINNET_` for Mainnet.
+Pass environment variables via `.env` file or shell. Use `GOERLI_` prefix for Goerli network values, use `SEPOLIA_` perfix for Sepolia and `ARBITRUMSEPOLIA_` perfix for Arbitrum sepolia as in the below examples or `MAINNET_` for Mainnet and `ARBITRUMONE`.
 
 ```ini
 GOERLI_INFURA_API_KEY=infura_api_key
