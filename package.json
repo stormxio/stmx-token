@@ -11,13 +11,12 @@
     "prettier": "prettier --write --plugin=prettier-plugin-solidity 'contracts/**/*.sol'",
     "postinstall": "npx hardhat compile && npm run generate-types",
     "test": "hardhat test",
-    "deploy:goerli": "hardhat run --network goerli  scripts/deploy.ts",
-    "deploy:sepolia": "hardhat run --network sepolia  scripts/deploy.ts",
+    "deploy:sepolia": "hardhat run --network sepolia",
     "deploy:arbitrumSepolia": "hardhat run --network arbitrumSepolia",
-    "deploy:mainnet": "hardhat run --network mainnet  scripts/deploy.ts",
-    "verify:goerli": "hardhat verify --network goerli",
+    "deploy:mainnet": "hardhat run --network mainnet",
+    "deploy:arbitrumOne": "hardhat run --network arbitrumOne",
     "verify:sepolia": "hardhat verify --network sepolia",
-    "verify:arbitrumSepolia": "hardhat verify --network arbitrumSepolia",
+    "verify:arbitrumOne": "hardhat verify --network arbitrumOne",
     "verify:mainnet": "hardhat verify --network mainnet"
   },
   "repository": {
