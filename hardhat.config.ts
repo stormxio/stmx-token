@@ -1,13 +1,12 @@
 import { HardhatUserConfig, } from "hardhat/config";
 import { SolcUserConfig } from 'hardhat/types'
-import '@typechain/hardhat';
-import "@nomiclabs/hardhat-waffle";
+import "@typechain/hardhat";
 import "@nomiclabs/hardhat-ethers";
+import "@nomiclabs/hardhat-waffle";
 import "@nomicfoundation/hardhat-verify";
 import "solidity-coverage";
-import "hardhat-gas-reporter";
-import "hardhat-contract-sizer";
 import '@openzeppelin/hardhat-upgrades';
+import '@nomicfoundation/hardhat-chai-matchers';
 import dotenv from 'dotenv-extended';
 
 dotenv.load()
@@ -67,21 +66,9 @@ interface ExtendedHardhatUserConfig extends HardhatUserConfig {
 }
 
 const config: ExtendedHardhatUserConfig = {
-  plugins: ["hardhat-gas-reporter", "@typechain/hardhat", "solidity-coverage", "hardhat-verify"],
   networks: {
     hardhat: {
-      // @ts-ignore workaround for Hardhat < 2.8.3
-      gasReporter: {
-        outputFile: "gas-report.txt",
-        enabled: true,
-        currency: "USD",
-        coinmarketcap: COIN_MARKETCAP_API_KEY || "",
-        token: "ETH"
-      },
       allowUnlimitedContractSize: false,
-      accounts: {
-        count: 52,
-      }
     },
     mainnet: {
       url: `https://mainnet.infura.io/v3/${process.env.MAINNET_INFURA_API_KEY}`,
@@ -114,13 +101,6 @@ const config: ExtendedHardhatUserConfig = {
     compilers: [DEFAULT_COMPILER_SETTINGS],
   },
   etherscan: EtherscanConfig,
-  contractSizer: {
-    alphaSort: true,
-    disambiguatePaths: false,
-    runOnCompile: true,
-    strict: true,
-  }
-
 }
 
 export default config

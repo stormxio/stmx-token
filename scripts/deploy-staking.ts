@@ -16,9 +16,9 @@ async function main() {
 
   const StakingContract = await ethers.getContractFactory('Staking', owner)
   const staking: Staking = await StakingContract.deploy(values.NEW_TOKEN, values.TREASURY)
-  await staking.waitForDeployment()
+  await staking.deployed()
 
-  console.info(`Verify here: ${getEtherscanUri('address', staking.target)}`)
+  console.info(`Verify here: ${getEtherscanUri('address', staking.address)}`)
 }
 
 main()

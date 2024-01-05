@@ -32,7 +32,7 @@ describe('Staking', async () => {
   describe('Deploying', () => {
     it('reverts if deployment is using zero-address token', async () => {
       const StakingContract = await ethers.getContractFactory('Staking')
-      await expect(StakingContract.deploy(ZERO_ADDRESS, signers.user2.address))
+      await expect(StakingContract.deploy(ZERO_ADDRESS, signers.user1.address))
         .to.be.revertedWithCustomError(staking, 'ZeroAddress')
     })
 
@@ -180,7 +180,7 @@ describe('Staking', async () => {
       const txReceiptUnresolved = await staking.connect(signers.user1.signer).unstake(500)
       await expect(txReceiptUnresolved).to.emit(staking, 'Unstaked').withArgs(signers.user1.address, 500)
     })
-    
+
     it('prevents from unstaking different amount than from the timer', async () => {
       // staking
       await token.connect(signers.user1.signer).approve(staking.address, 500)
