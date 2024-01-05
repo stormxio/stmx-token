@@ -106,8 +106,8 @@ describe('STMX', async () => {
 
     it('prevents non-owner from upgrading the contract', async () => {
       const STMXv3Contract = await ethers.getContractFactory('STMXv3', signers.user1)
-      await expect(upgrades.upgradeProxy(token, STMXv3Contract)).to.be.reverted
-      // .to.be.revertedWith('Ownable: caller is not the owner')
+      await expect(upgrades.upgradeProxy(token, STMXv3Contract))
+        .to.be.revertedWith('Ownable: caller is not the owner')
     })
 
     it('reverts if initialize() called more than once', async () => {
