@@ -4,7 +4,6 @@ import "@typechain/hardhat";
 import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
 import "@nomicfoundation/hardhat-verify";
-import "solidity-coverage";
 import '@openzeppelin/hardhat-upgrades';
 import '@nomicfoundation/hardhat-chai-matchers';
 import dotenv from 'dotenv-extended';
