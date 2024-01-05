@@ -19,7 +19,7 @@ jobs:
         node-version: '16.x'
 
     - name: Install dependencies
-      run: rm -rf yarn.lock cache artifacts typechain typechain-types && yarn
+      run: rm -rf node_modules yarn.lock cache artifacts typechain typechain-types && yarn
 
     - name: Coverage
       run: npx hardhat coverage
