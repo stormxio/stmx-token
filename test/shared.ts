@@ -6,7 +6,7 @@ import { Signer, Signers } from './types'
 
 export { expect }
 
-export const INITIAL_SUPPLY = 12_500_000_000
+export const INITIAL_SUPPLY = 12500000000
 export const NAME = 'StormX'
 export const SYMBOL = 'STMX'
 export const ZERO_ADDRESS = ethers.constants.AddressZero

@@ -57,7 +57,6 @@ describe('Convert', async () => {
       // check balances before the conversion
       expect(await oldToken.balanceOf(signers.user1.address)).to.equal(1000)
       expect(await newToken.balanceOf(signers.user1.address)).to.equal(0)
-      
       // then convert
       await oldToken.connect(signers.user1.signer).approve(convert.address, 250)
       const txReceiptUnresolved1 = await convert.connect(signers.user1.signer).convert(100)

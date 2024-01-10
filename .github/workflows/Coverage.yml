@@ -16,10 +16,10 @@ jobs:
     - name: Setup Node
       uses: actions/setup-node@v3
       with:
-        node-version: '16.x'
+        node-version: '20.x'
 
     - name: Install dependencies
-      run: yarn
+      run: rm -rf node_modules yarn.lock cache artifacts typechain typechain-types && yarn
 
     - name: Coverage
       run: npx hardhat coverage
