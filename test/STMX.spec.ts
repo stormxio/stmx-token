@@ -63,7 +63,7 @@ describe('STMX', async () => {
       // assert that transferFrom only succeeds if sender is spender
       await expect(token.connect(signers.user2.signer)
         .transferFrom(signers.user1.address, signers.user2.address, 250))
-        .to.be.revertedWith('ERC20: transfer amount exceeds allowance')
+        .to.be.revertedWith('ERC20: insufficient allowance')
 
       // assert proper total balance
       expect(await token.balanceOf(signers.user1.address)).to.equal(750)
