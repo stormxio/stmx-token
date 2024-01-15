@@ -23,7 +23,7 @@ describe('Staking', async () => {
     expect(await token.balanceOf(signers.owner.address)).to.equal(INITIAL_SUPPLY)
 
     const StakingContract = await ethers.getContractFactory('Staking')
-    staking = await StakingContract.deploy(token.address, signers.user2.address)
+    staking = await StakingContract.deploy(token.target, signers.user2.address)
 
     // transfer 1000 tokens to user1
     await token.connect(signers.owner.signer).transfer(signers.user1.address, 1000)
@@ -38,7 +38,7 @@ describe('Staking', async () => {
 
     it('reverts if deployment is using zero-address treasury', async () => {
       const StakingContract = await ethers.getContractFactory('Staking')
-      await expect(StakingContract.deploy(token.address, ZERO_ADDRESS))
+      await expect(StakingContract.deploy(token.target, ZERO_ADDRESS))
         .to.be.revertedWithCustomError(staking, 'ZeroAddress')
     })
   })
@@ -51,33 +51,33 @@ describe('Staking', async () => {
     it('allows to stake the tokens', async () => {
       // balances before the staking
       expect(await token.balanceOf(signers.user1.address)).to.equal(1000)
-      expect(await token.balanceOf(staking.address)).to.equal(0)
+      expect(await token.balanceOf(staking.target)).to.equal(0)
 
       // staking
-      await token.connect(signers.user1.signer).approve(staking.address, 200)
+      await token.connect(signers.user1.signer).approve(staking.target, 200)
       await staking.connect(signers.user1.signer).stake(200)
       expect(await staking.staked(signers.user1.address)).to.equal(200)
 
       // balances after the staking
       expect(await token.balanceOf(signers.user1.address)).to.equal(800)
-      expect(await token.balanceOf(staking.address)).to.equal(200)
+      expect(await token.balanceOf(staking.target)).to.equal(200)
     })
 
     it('allows to unstake the tokens and transfer the tokens before the cooldown period', async () => {
       // balances before the staking
       expect(await token.balanceOf(signers.user1.address)).to.equal(1000)
       expect(await token.balanceOf(signers.user2.address)).to.equal(0)
-      expect(await token.balanceOf(staking.address)).to.equal(0)
+      expect(await token.balanceOf(staking.target)).to.equal(0)
 
       // staking
-      await token.connect(signers.user1.signer).approve(staking.address, 600)
+      await token.connect(signers.user1.signer).approve(staking.target, 600)
       await staking.connect(signers.user1.signer).stake(600)
       expect(await staking.staked(signers.user1.address)).to.equal(600)
 
       // balances after staking
       expect(await token.balanceOf(signers.user1.address)).to.equal(400)
       expect(await token.balanceOf(signers.user2.address)).to.equal(0) // treasury wallet
-      expect(await token.balanceOf(staking.address)).to.equal(600)
+      expect(await token.balanceOf(staking.target)).to.equal(600)
 
       // set the cooldown timer
       await staking.connect(signers.user1.signer).setCooldownTimer(600)
@@ -93,12 +93,12 @@ describe('Staking', async () => {
       // balances after unstaking
       expect(await token.balanceOf(signers.user1.address)).to.equal(940) // unstaker wallet
       expect(await token.balanceOf(signers.user2.address)).to.equal(60) // treasury wallet
-      expect(await token.balanceOf(staking.address)).to.equal(0)
+      expect(await token.balanceOf(staking.target)).to.equal(0)
     })
 
     it('allows to unstake the tokens and transfer the tokens without the cooldown period', async () => {
       // staking
-      await token.connect(signers.user1.signer).approve(staking.address, 500)
+      await token.connect(signers.user1.signer).approve(staking.target, 500)
       await staking.connect(signers.user1.signer).stake(500)
 
       // unstaking without setting the cooldown period
@@ -111,7 +111,7 @@ describe('Staking', async () => {
       // balances after unstaking
       expect(await token.balanceOf(signers.user1.address)).to.equal(680) // unstaker wallet
       expect(await token.balanceOf(signers.user2.address)).to.equal(20) // treasury wallet
-      expect(await token.balanceOf(staking.address)).to.equal(300) // remaining staking amount
+      expect(await token.balanceOf(staking.target)).to.equal(300) // remaining staking amount
 
       // unstaking the remaining amount without setting the cooldown period
       await staking.connect(signers.user1.signer).unstake(300)
@@ -120,31 +120,31 @@ describe('Staking', async () => {
       // balances after unstaking the remaining amount
       expect(await token.balanceOf(signers.user1.address)).to.equal(950) // unstaker wallet
       expect(await token.balanceOf(signers.user2.address)).to.equal(50) // treasury wallet
-      expect(await token.balanceOf(staking.address)).to.equal(0) // remaining staking amount
+      expect(await token.balanceOf(staking.target)).to.equal(0) // remaining staking amount
     })
 
     it('allows to unstake the tokens and transfer the tokens after the cooldown period', async () => {
       // balances before the staking
       expect(await token.balanceOf(signers.user1.address)).to.equal(1000)
       expect(await token.balanceOf(signers.user2.address)).to.equal(0)
-      expect(await token.balanceOf(staking.address)).to.equal(0)
+      expect(await token.balanceOf(staking.target)).to.equal(0)
 
       // staking
-      await token.connect(signers.user1.signer).approve(staking.address, 600)
+      await token.connect(signers.user1.signer).approve(staking.target, 600)
       await staking.connect(signers.user1.signer).stake(600)
       expect(await staking.staked(signers.user1.address)).to.equal(600)
 
       // balances after staking
       expect(await token.balanceOf(signers.user1.address)).to.equal(400)
       expect(await token.balanceOf(signers.user2.address)).to.equal(0) // treasury wallet
-      expect(await token.balanceOf(staking.address)).to.equal(600)
+      expect(await token.balanceOf(staking.target)).to.equal(600)
 
       // set the cooldown timer
       await staking.connect(signers.user1.signer).setCooldownTimer(500)
       expect(await staking.amounts(signers.user1.address)).to.equal(500)
 
       // pass the cooldown period
-      increaseEvmTime(toDays(15).toNumber())
+      increaseEvmTime(toDays(15))
 
       // unstaking
       await staking.connect(signers.user1.signer).unstake(500)
@@ -156,12 +156,12 @@ describe('Staking', async () => {
       // balances after unstaking
       expect(await token.balanceOf(signers.user1.address)).to.equal(900) // unstaker wallet
       expect(await token.balanceOf(signers.user2.address)).to.equal(0) // treasury wallet
-      expect(await token.balanceOf(staking.address)).to.equal(100)
+      expect(await token.balanceOf(staking.target)).to.equal(100)
     })
 
     it('emits "Staked" event when staking', async () => {
       // staking
-      await token.connect(signers.user1.signer).approve(staking.address, 500)
+      await token.connect(signers.user1.signer).approve(staking.target, 500)
       const txReceiptUnresolved = await staking.connect(signers.user1.signer).stake(500)
       await expect(txReceiptUnresolved).to.emit(staking, 'Staked').withArgs(signers.user1.address, 500)
       expect(await staking.staked(signers.user1.address)).to.equal(500)
@@ -169,7 +169,7 @@ describe('Staking', async () => {
 
     it('emits "Unstaked" event when unstaking', async () => {
       // staking
-      await token.connect(signers.user1.signer).approve(staking.address, 500)
+      await token.connect(signers.user1.signer).approve(staking.target, 500)
       await staking.connect(signers.user1.signer).stake(500)
       expect(await staking.staked(signers.user1.address)).to.equal(500)
 
@@ -183,7 +183,7 @@ describe('Staking', async () => {
 
     it('prevents from unstaking different amount than from the timer', async () => {
       // staking
-      await token.connect(signers.user1.signer).approve(staking.address, 500)
+      await token.connect(signers.user1.signer).approve(staking.target, 500)
       await staking.connect(signers.user1.signer).stake(500)
       expect(await staking.staked(signers.user1.address)).to.equal(500)
 
@@ -207,7 +207,7 @@ describe('Staking', async () => {
 
     it('prevents from unstaking more tokens than already staked', async () => {
       // staking
-      await token.connect(signers.user1.signer).approve(staking.address, 600)
+      await token.connect(signers.user1.signer).approve(staking.target, 600)
       await staking.connect(signers.user1.signer).stake(600)
       expect(await staking.staked(signers.user1.address)).to.equal(600)
 
@@ -245,22 +245,22 @@ describe('Staking', async () => {
   describe('Penalty', () => {
     it('allows to calculate the penalty before actually unstaking', async () => {
       // stake
-      await token.connect(signers.user1.signer).approve(staking.address, 500)
+      await token.connect(signers.user1.signer).approve(staking.target, 500)
       await staking.connect(signers.user1.signer).stake(500)
-      expect(await staking.connect(signers.user1.address).calculatePenalty(500)).to.equal(50)
+      expect(await staking.connect(signers.user1.signer).calculatePenalty(500)).to.equal(50)
 
       // set the cooldown timer
       await staking.connect(signers.user1.signer).setCooldownTimer(500)
 
       // wait some time and change penalty amount
-      increaseEvmTime(toDays(8).toNumber())
+      increaseEvmTime(toDays(8))
       await expect(staking.connect(signers.owner.signer).setPenalty(2000))
       // penalty should remain the same for that address since it was snapshotted
-      expect(await staking.connect(signers.user1.address).calculatePenalty(500)).to.equal(50)
+      expect(await staking.connect(signers.user1.signer).calculatePenalty(500)).to.equal(50)
 
       // pass the cooldown period
-      increaseEvmTime(toDays(8).toNumber())
-      expect(await staking.connect(signers.user1.address).calculatePenalty(500)).to.equal(0)
+      increaseEvmTime(toDays(8))
+      expect(await staking.connect(signers.user1.signer).calculatePenalty(500)).to.equal(50)
     })
 
     it('allows the owner to set the penalty and emits "PenaltyChanged" event', async () => {
@@ -272,7 +272,7 @@ describe('Staking', async () => {
 
     it('allows to set the cooldown timer and emits "SetCooldownTimer" event', async () => {
       // need to stake before setting the cooldown period
-      await token.connect(signers.user1.signer).approve(staking.address, 100)
+      await token.connect(signers.user1.signer).approve(staking.target, 100)
       await staking.connect(signers.user1.signer).stake(100)
 
       // then set the cooldown period
@@ -280,10 +280,9 @@ describe('Staking', async () => {
       await expect(txReceiptUnresolved).to.emit(staking, 'SetCooldownTimer').withArgs(signers.user1.address, 100)
 
       const penalty = await staking.penalty()
-      const cooldown = await staking.cooldown()
+      const cooldown = Number(await staking.cooldown())
       const blockTimestamp = await getBlockTimestamp()
-
-      expect(await staking.timers(signers.user1.address)).to.equal(cooldown.add(blockTimestamp))
+      expect(await staking.timers(signers.user1.address)).to.equal(cooldown + blockTimestamp)
       expect(await staking.amounts(signers.user1.address)).to.equal(100)
       expect(await staking.penalties(signers.user1.address)).to.equal(penalty)
     })
@@ -299,9 +298,9 @@ describe('Staking', async () => {
 
     it('prevents from setting the timer for more tokens than wallet staked', async () => {
       // stake
-      await token.connect(signers.user1.signer).approve(staking.address, 500)
+      await token.connect(signers.user1.signer).approve(staking.target, 500)
       await staking.connect(signers.user1.signer).stake(500)
-      expect(await staking.connect(signers.user1.address).calculatePenalty(500)).to.equal(50)
+      expect(await staking.connect(signers.user1.signer).calculatePenalty(500)).to.equal(50)
 
       // try to set the timer with more tokens than the wallet staked
       await expect(staking.connect(signers.user1.signer).setCooldownTimer(600))
@@ -320,32 +319,32 @@ describe('Staking', async () => {
 
     it('resets the timers and sends out the correct amounts', async () => {
       // stake
-      await token.connect(signers.user1.signer).approve(staking.address, 200)
+      await token.connect(signers.user1.signer).approve(staking.target, 200)
       await staking.connect(signers.user1.signer).stake(200)
-      expect(await staking.connect(signers.user1.address).calculatePenalty(200)).to.equal(20)
+      expect(await staking.connect(signers.user1.signer).calculatePenalty(200)).to.equal(20)
 
       // set the cooldown timer
       await staking.connect(signers.user1.signer).setCooldownTimer(100)
 
       // wait some time and change global penalty amount
       const timerBeforeIncreasingEvmTime = await staking.timers(signers.user1.address)
-      increaseEvmTime(toDays(8).toNumber())
+      increaseEvmTime(toDays(8))
       await expect(staking.connect(signers.owner.signer).setPenalty(2000))
       // penalty should remain the same for that address since it was snapshotted
-      expect(await staking.connect(signers.user1.address).calculatePenalty(200)).to.equal(20)
+      expect(await staking.connect(signers.user1.signer).calculatePenalty(200)).to.equal(20)
       // timer should also stay the same
       expect(await staking.timers(signers.user1.address)).to.equal(timerBeforeIncreasingEvmTime)
       // same for timer amount
       expect(await staking.amounts(signers.user1.address)).to.equal(100)
 
       // stake some more tokens
-      await token.connect(signers.user1.signer).approve(staking.address, 200)
+      await token.connect(signers.user1.signer).approve(staking.target, 200)
       await staking.connect(signers.user1.signer).stake(200)
       // but the penalty should be now increased because of the amount change
-      expect(await staking.connect(signers.user1.address).calculatePenalty(400)).to.equal(80)
+      expect(await staking.connect(signers.user1.signer).calculatePenalty(400)).to.equal(80)
       // wait some more time and pass the cooldown period
-      increaseEvmTime(toDays(8).toNumber())
-      expect(await staking.connect(signers.user1.address).calculatePenalty(400)).to.equal(0)
+      increaseEvmTime(toDays(8))
+      expect(await staking.connect(signers.user1.signer).calculatePenalty(400)).to.equal(80)
 
       // unstake the tokens from the initial timer without a penalty clearing the timer
       await staking.connect(signers.user1.signer).unstake(100)

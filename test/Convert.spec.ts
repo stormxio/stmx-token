@@ -31,10 +31,9 @@ describe('Convert', async () => {
     expect(await newToken.balanceOf(signers.owner.address)).to.equal(INITIAL_SUPPLY)
 
     const ConvertContract = await ethers.getContractFactory('Convert')
-    convert = await ConvertContract.deploy(oldToken.address, newToken.address)
-
+    convert = await ConvertContract.deploy(oldToken.target, newToken.target)
     // transfer 1000 new tokens to {convert}
-    await newToken.connect(signers.owner.signer).transfer(convert.address, 1000)
+    await newToken.connect(signers.owner.signer).transfer(convert.target, 1000)
   })
 
 
@@ -47,7 +46,7 @@ describe('Convert', async () => {
 
     it('reverts if deployment is using zero-address newToken', async () => {
       const ConvertContract = await ethers.getContractFactory('Convert')
-      await expect(ConvertContract.deploy(newToken.address, ZERO_ADDRESS))
+      await expect(ConvertContract.deploy(newToken.target, ZERO_ADDRESS))
         .to.be.revertedWithCustomError(convert, 'ZeroAddress')
     })
   })
@@ -58,7 +57,7 @@ describe('Convert', async () => {
       expect(await oldToken.balanceOf(signers.user1.address)).to.equal(1000)
       expect(await newToken.balanceOf(signers.user1.address)).to.equal(0)
       // then convert
-      await oldToken.connect(signers.user1.signer).approve(convert.address, 250)
+      await oldToken.connect(signers.user1.signer).approve(convert.target, 250)
       const txReceiptUnresolved1 = await convert.connect(signers.user1.signer).convert(100)
       await expect(txReceiptUnresolved1).to.emit(convert, 'Converted').withArgs(signers.user1.address, 100)
       const txReceiptUnresolved2 = await convert.connect(signers.user1.signer).convert(150)
@@ -71,19 +70,19 @@ describe('Convert', async () => {
 
     it('reverts in case of closed contract', async () => {
       await convert.connect(signers.owner.signer).close()
-      await oldToken.connect(signers.user1.signer).approve(convert.address, 200)
+      await oldToken.connect(signers.user1.signer).approve(convert.target, 200)
       await expect(convert.connect(signers.user1.signer).convert(200))
         .to.be.revertedWithCustomError(convert, 'AlreadyClosed')
     })
 
     it('reverts in case of not enought old token balance', async () => {
-      await oldToken.connect(signers.user1.signer).approve(convert.address, 2000)
+      await oldToken.connect(signers.user1.signer).approve(convert.target, 2000)
       await expect(convert.connect(signers.user1.signer).convert(2000))
         .to.be.revertedWithCustomError(convert, 'NotEnoughOldTokenBalance')
     })
 
     it('reverts in case of failed transfer from the old token', async () => {
-      await oldToken.connect(signers.user1.signer).approve(convert.address, 0)
+      await oldToken.connect(signers.user1.signer).approve(convert.target, 0)
       await expect(convert.connect(signers.user1.signer).convert(0))
         .to.be.revertedWithCustomError(convert, 'OldTokenTransferFailed')
     })
@@ -91,7 +90,7 @@ describe('Convert', async () => {
     it('reverts in case of not enough reserves', async () => {
       await oldToken.connect(signers.owner.signer).transfer(signers.user1.address, 1000)
       // convert contract should have only 1000 new tokens
-      await oldToken.connect(signers.user1.signer).approve(convert.address, 2000)
+      await oldToken.connect(signers.user1.signer).approve(convert.target, 2000)
       await expect(convert.connect(signers.user1.signer).convert(2000))
         .to.be.revertedWithCustomError(convert, 'NotEnoughReserves')
     })
@@ -114,7 +113,7 @@ describe('Convert', async () => {
   describe('Withdraw', () => {
     it('allows the owner to withdraw remaining tokens when contract is closed', async () => {
       expect(await newToken.balanceOf(signers.owner.address)).to.equal(INITIAL_SUPPLY - 1000)
-      expect(await newToken.balanceOf(convert.address)).to.equal(1000)
+      expect(await newToken.balanceOf(convert.target)).to.equal(1000)
       await convert.connect(signers.owner.signer).close()
       await convert.connect(signers.owner.signer).withdraw()
       expect(await newToken.balanceOf(signers.owner.address)).to.equal(INITIAL_SUPPLY)

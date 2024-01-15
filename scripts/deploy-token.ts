@@ -21,8 +21,8 @@ async function main() {
   // const initialSupply = BigNumber.from(values.INITIAL_SUPPLY).mul(BigNumber.from(10).pow(18))
   const args = [values.NAME, values.SYMBOL, values.INITIAL_SUPPLY, owner.address]
   const token = await upgrades.deployProxy(STMXContract, args) as unknown as STMX
-  await token.deployed()
-  console.info(`Verify here: ${getEtherscanUri('address', token.address)}`)
+  await token.waitForDeployment()
+  console.info(`Verify here: ${getEtherscanUri('address', token.target)}`)
 }
 
 main()
