@@ -1,5 +1,4 @@
 import { expect } from 'chai'
-// import { Block } from 'ethers'
 import { ethers } from 'hardhat'
 
 import { Signer, Signers } from './types'
