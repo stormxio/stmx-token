@@ -17,12 +17,10 @@ async function main() {
   const ConvertContract = await ethers.getContractFactory('Convert', owner)
   const convert: Convert = await ConvertContract.deploy(values.OLD_TOKEN, values.NEW_TOKEN)
 
-  console.info(`Check tx here: ${getEtherscanUri('tx', convert.deployTransaction.hash)}`)
+  await convert.waitForDeployment()
 
-  await convert.deployed()
-
-  console.info(`Convert deployed to: ${convert.address}`)
-  console.info(`Verify here: ${getEtherscanUri('address', convert.address)}`)
+  console.info(`Convert deployed to: ${convert.target}`)
+  console.info(`Verify here: ${getEtherscanUri('address', convert.target)}`)
 }
 
 main()

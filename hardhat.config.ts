@@ -1,8 +1,7 @@
 import { HardhatUserConfig, } from "hardhat/config";
 import { SolcUserConfig } from 'hardhat/types'
 import "@typechain/hardhat";
-import "@nomiclabs/hardhat-ethers";
-import "@nomiclabs/hardhat-waffle";
+import "@nomicfoundation/hardhat-ethers";
 import "@nomicfoundation/hardhat-verify";
 import "solidity-coverage";
 import '@openzeppelin/hardhat-upgrades';
